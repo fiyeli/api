@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from flask import Flask, jsonify, abort
 
 app = Flask(__name__)
@@ -15,12 +18,30 @@ def stats():
 
 @app.route('/stats/today', methods=['GET'])
 def stats_today():
-    abort(404)
+    day = datetime.datetime.now().strftime("%Y-%m-%d")
+    if os.path.isfile('../fiyeli/data/' + day + '.csv'):
+        return stats_day(day)
+    else:
+        abort(404)
 
 
-@app.route('/stats/<date>', methods=['GET'])
-def stats_day(date):
-    abort(404)
+@app.route('/stats/<user_input>', methods=['GET'])
+def stats_day(user_input):
+    try:
+        day_time = datetime.datetime.strptime(user_input, '%Y-%m-%d')
+        day = day_time.strftime("%Y-%m-%d")
+    except ValueError as e:
+        return jsonify({'message': 'Invalid date. Expected format YYYY-MM-DD'}), 400
+    print(day)
+    if not os.path.isfile('../fiyeli/data/' + str(day) + '.csv'):
+        return jsonify({'message': 'No stats for this date'}), 404
+    else:
+        out = []
+        csv_file = open('../fiyeli/data/' + str(day) + '.csv', 'r')
+        for row in csv_file:
+            # We remove \n and split by ';'
+            out.append(row.rstrip().split(';'))
+        return jsonify(out)
 
 
 @app.errorhandler(404)
