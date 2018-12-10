@@ -8,7 +8,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({'message': 'Hello World !'})
+    url = [url_for('stats')]
+    return jsonify({'urls': url})
 
 
 @app.route('/stats/', methods=['GET'])
