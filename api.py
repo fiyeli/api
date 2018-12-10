@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, url_for
 
 app = Flask(__name__)
 
@@ -11,9 +11,12 @@ def hello_world():
     return jsonify({'message': 'Hello World !'})
 
 
-@app.route('/stats', methods=['GET'])
+@app.route('/stats/', methods=['GET'])
 def stats():
-    abort(404)
+    res = []
+    for file in os.listdir('../fiyeli/data/'):
+        res.append(url_for('stats_day', user_input=file.strip('.csv')))
+    return jsonify({'uris': res})
 
 
 @app.route('/stats/today', methods=['GET'])
@@ -22,7 +25,7 @@ def stats_today():
     if os.path.isfile('../fiyeli/data/' + day + '.csv'):
         return stats_day(day)
     else:
-        abort(404)
+        return jsonify({'message': 'No stats generated yet, please come back later'}), 404
 
 
 @app.route('/stats/<user_input>', methods=['GET'])
