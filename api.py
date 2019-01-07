@@ -4,6 +4,7 @@ import os
 from flask import Flask, jsonify, abort, url_for
 
 app = Flask(__name__)
+DATA_PATH = os.environ.get('DATA_PATH', '../fiyeli/data/')
 
 
 @app.route('/', methods=['GET'])
@@ -15,7 +16,7 @@ def hello_world():
 @app.route('/stats/', methods=['GET'])
 def stats():
     res = []
-    for file in os.listdir('../fiyeli/data/'):
+    for file in os.listdir(DATA_PATH):
         res.append(url_for('stats_day', user_input=file.strip('.csv')))
     return jsonify({'uris': res})
 
@@ -23,7 +24,7 @@ def stats():
 @app.route('/stats/today', methods=['GET'])
 def stats_today():
     day = datetime.datetime.now().strftime("%Y-%m-%d")
-    if os.path.isfile('../fiyeli/data/' + day + '.csv'):
+    if os.path.isfile(DATA_PATH + day + '.csv'):
         return stats_day(day)
     else:
         return jsonify({'message': 'No stats generated yet, please come back later'}), 404
@@ -37,11 +38,11 @@ def stats_day(user_input):
     except ValueError as e:
         return jsonify({'message': 'Invalid date. Expected format YYYY-MM-DD'}), 400
     print(day)
-    if not os.path.isfile('../fiyeli/data/' + str(day) + '.csv'):
+    if not os.path.isfile(DATA_PATH + str(day) + '.csv'):
         return jsonify({'message': 'No stats for this date'}), 404
     else:
         out = []
-        csv_file = open('../fiyeli/data/' + str(day) + '.csv', 'r')
+        csv_file = open(DATA_PATH + str(day) + '.csv', 'r')
         for row in csv_file:
             # We remove \n and split by ';'
             out.append(row.rstrip().split(';'))
