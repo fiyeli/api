@@ -2,8 +2,10 @@ import datetime
 import os
 
 from flask import Flask, jsonify, abort, url_for
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 DATA_PATH = os.environ.get('DATA_PATH', '../fiyeli/data/')
 
 
