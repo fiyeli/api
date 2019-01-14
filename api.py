@@ -37,7 +37,6 @@ def stats_day(user_input):
         day = day_time.strftime("%Y-%m-%d")
     except ValueError as e:
         return jsonify({'message': 'Invalid date. Expected format YYYY-MM-DD'}), 400
-    print(day)
     if not os.path.isfile(DATA_PATH + str(day) + '.csv'):
         return jsonify({'message': 'No stats for this date'}), 404
     else:
