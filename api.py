@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from flask import Flask, jsonify, abort, url_for
+from flask import Flask, jsonify, abort, url_for, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -20,6 +20,7 @@ def stats():
     res = []
     for file in os.listdir(DATA_PATH):
         res.append(url_for('stats_day', user_input=file.strip('.csv')))
+    res.append(url_for('stats_range'))
     return jsonify({'uris': res})
 
 
@@ -47,6 +48,34 @@ def stats_day(user_input):
         for row in csv_file:
             # We remove \n and split by ';'
             out.append(row.rstrip().split(';'))
+        return jsonify(out)
+
+
+@app.route('/stats/range', methods=['GET'])
+def stats_range():
+    if request.args.get('start_date') is None or request.args.get('end_date') is None:
+        return jsonify({'error': 'Bad request'}), 400
+    start_date = datetime.datetime.strptime(request.args.get('start_date'), '%Y-%m-%d')
+    end_date = datetime.datetime.strptime(request.args.get('end_date'), '%Y-%m-%d')
+
+    if start_date > end_date:
+        return jsonify({'error': 'End date should be after Start date'}), 400
+
+    out = []
+    while start_date <= end_date:
+        if os.path.isfile(DATA_PATH + start_date.strftime("%Y-%m-%d") + '.csv'):
+            print("Adding data for " + start_date.strftime("%Y-%m-%d"))
+            csv_file = open(DATA_PATH + start_date.strftime("%Y-%m-%d") + '.csv', 'r')
+            for row in csv_file:
+                # We remove \n and split by ';'
+                out.append(row.rstrip().split(';'))
+        else:
+            print(start_date.strftime("%Y-%m-%d") + " -> No CSV")
+        start_date = start_date + datetime.timedelta(days=1)
+        print(start_date.strftime("%Y-%m-%d") + " -> New start_date")
+    if not out:
+        return jsonify({'error': 'No data for this range'}), 404
+    else:
         return jsonify(out)
 
 
