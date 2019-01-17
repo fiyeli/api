@@ -64,15 +64,11 @@ def stats_range():
     out = []
     while start_date <= end_date:
         if os.path.isfile(DATA_PATH + start_date.strftime("%Y-%m-%d") + '.csv'):
-            print("Adding data for " + start_date.strftime("%Y-%m-%d"))
             csv_file = open(DATA_PATH + start_date.strftime("%Y-%m-%d") + '.csv', 'r')
             for row in csv_file:
                 # We remove \n and split by ';'
                 out.append(row.rstrip().split(';'))
-        else:
-            print(start_date.strftime("%Y-%m-%d") + " -> No CSV")
         start_date = start_date + datetime.timedelta(days=1)
-        print(start_date.strftime("%Y-%m-%d") + " -> New start_date")
     if not out:
         return jsonify({'error': 'No data for this range'}), 404
     else:
