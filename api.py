@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-DATA_PATH = os.environ.get('FIYELI_DATA', '~/Fiyeli/core/data/')
+DATA_PATH = os.environ.get('FIYELI_DATA', '~/Fiyeli/core/data') + '/'
 
 
 @app.route('/', methods=['GET'])
