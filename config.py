@@ -20,3 +20,6 @@
 
 bind = '0.0.0.0:8000'
 backlog = 2048
+bind = '0.0.0.0:8000'
+pidfile = '/tmp/gunicornpid'
+errorlog = '/tmp/loggunicor'
